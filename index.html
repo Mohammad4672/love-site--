@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Voice Recorder 💖</title>
+
+<style>
+body{
+  margin:0;
+  height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  flex-direction:column;
+  background:linear-gradient(45deg,#ff4d6d,#ff99ac);
+  font-family:Arial;
+  color:white;
+  text-align:center;
+}
+
+button{
+  padding:12px 18px;
+  margin:10px;
+  border:none;
+  border-radius:12px;
+  cursor:pointer;
+  font-size:16px;
+}
+
+audio{
+  margin-top:20px;
+  width:250px;
+}
+</style>
+</head>
+
+<body>
+
+<h2>💖 Voice Recorder</h2>
+
+<button onclick="startRec()">🎙️ Start</button>
+<button onclick="stopRec()">⛔ Stop & Save</button>
+
+<audio id="audio" controls></audio>
+
+<a id="download" style="display:none;">Download</a>
+
+<script>
+let recorder;
+let chunks = [];
+
+async function startRec(){
+  const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+
+  recorder = new MediaRecorder(stream);
+  chunks = [];
+
+  recorder.ondataavailable = e => {
+    chunks.push(e.data);
+  };
+
+  recorder.onstop = () => {
+    const blob = new Blob(chunks, { type: 'audio/webm' });
+    const url = URL.createObjectURL(blob);
+
+    // تشغيله داخل الصفحة
+    document.getElementById("audio").src = url;
+
+    // 🔥 حفظ الملف
+    const a = document.getElementById("download");
+    a.href = url;
+    a.download = "my-voice.webm";
+    a.innerText = "Download voice";
+    a.style.display = "block";
+  };
+
+  recorder.start();
+}
+
+function stopRec(){
+  recorder.stop();
+}
+</script>
+
+</body>
+</html>
