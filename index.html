@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Voice Recorder 💖</title>
+
+<style>
+body{
+  margin:0;
+  height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  flex-direction:column;
+  background:linear-gradient(45deg,#ff4d6d,#ff99ac);
+  font-family:Arial;
+  color:white;
+  text-align:center;
+}
+
+button{
+  padding:12px 18px;
+  margin:10px;
+  border:none;
+  border-radius:12px;
+  cursor:pointer;
+  font-size:16px;
+}
+
+audio{
+  margin-top:20px;
+  width:260px;
+}
+</style>
+</head>
+
+<body>
+
+<h2>💖 Voice Recorder</h2>
+
+<button onclick="startRec()">🎙️ Start</button>
+<button onclick="stopRec()">⛔ Stop & Save</button>
+
+<audio id="audio" controls></audio>
+
+<script>
+let recorder;
+let chunks = [];
+let stream;
+
+async function startRec(){
+  try {
+    stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+
+    recorder = new MediaRecorder(stream);
+    chunks = [];
+
+    recorder.ondataavailable = e => {
+      chunks.push(e.data);
+    };
+
+    recorder.onstop = () => {
+      const blob = new Blob(chunks, { type: 'audio/webm' });
+      const url = URL.createObjectURL(blob);
+
+      // تشغيل الصوت
+      document.getElementById("audio").src = url;
+
+      // تحميل تلقائي
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "voice-record.webm";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    };
+
+    recorder.start();
+
+  } catch(err){
+    alert("Microphone permission blocked ❌");
+  }
+}
+
+function stopRec(){
+  if(recorder && recorder.state !== "inactive"){
+    recorder.stop();
+    stream.getTracks().forEach(t => t.stop());
+  }
+}
+</script>
+
+</body>
+</html>
