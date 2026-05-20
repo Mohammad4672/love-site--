@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>💖 Love Link</title>
+
+<style>
+body{
+  margin:0;
+  height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  flex-direction:column;
+  background:linear-gradient(45deg,#ff4d6d,#ff99ac);
+  font-family:Arial;
+  color:white;
+  text-align:center;
+}
+
+.box{
+  background:rgba(0,0,0,0.3);
+  padding:20px;
+  border-radius:20px;
+  width:300px;
+}
+
+button{
+  padding:12px 15px;
+  margin:8px;
+  border:none;
+  border-radius:12px;
+  cursor:pointer;
+}
+
+audio{
+  width:250px;
+  margin-top:10px;
+}
+
+#msg{
+  margin-top:10px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="box">
+  <h2>💖 رسالة حب صوتية</h2>
+
+  <button onclick="startRec()">🎙️ تسجيل</button>
+  <button onclick="stopRec()">⛔ إيقاف + حفظ</button>
+
+  <audio id="audio" controls></audio>
+
+  <p id="msg">سجّل رسالة حب 💌</p>
+</div>
+
+<script>
+
+let rec;
+let stream;
+let chunks = [];
+
+async function startRec(){
+  stream = await navigator.mediaDevices.getUserMedia({audio:true});
+
+  rec = new MediaRecorder(stream);
+  chunks = [];
+
+  rec.ondataavailable = e => chunks.push(e.data);
+
+  rec.start();
+  document.getElementById("msg").innerText="🎙️ عم يسجّل...";
+}
+
+function stopRec(){
+  rec.stop();
+
+  rec.onstop = () => {
+    const blob = new Blob(chunks,{type:"audio/webm"});
+    const url = URL.createObjectURL(blob);
+
+    document.getElementById("audio").src = url;
+
+    document.getElementById("msg").innerText="💖 تم تسجيل رسالة الحب!";
+  };
+
+  stream.getTracks().forEach(t=>t.stop());
+}
+
+</script>
+
+</body>
+</html>
