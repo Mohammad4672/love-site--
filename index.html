@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+<meta charset="UTF-8">
+<title>💖 Love Story</title>
+
+<style>
+body{
+  margin:0;
+  height:100vh;
+  overflow:hidden;
+  font-family:Arial;
+  background:linear-gradient(45deg,#ff4d6d,#ff99ac);
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  color:white;
+}
+
+/* صفحات القصة */
+.page{
+  display:none;
+  text-align:center;
+  background:rgba(0,0,0,0.35);
+  padding:25px;
+  border-radius:20px;
+  width:85%;
+  max-width:420px;
+  animation:fade 1s ease;
+}
+
+.page.active{ display:block; }
+
+@keyframes fade{
+  from{opacity:0; transform:scale(0.8);}
+  to{opacity:1; transform:scale(1);}
+}
+
+button{
+  padding:12px 18px;
+  border:none;
+  border-radius:12px;
+  margin:6px;
+  cursor:pointer;
+  font-size:15px;
+}
+
+/* قلوب */
+.heart{
+  position:absolute;
+  color:white;
+  animation:float 6s linear infinite;
+}
+
+@keyframes float{
+  from{transform:translateY(100vh);opacity:1}
+  to{transform:translateY(-10vh);opacity:0}
+}
+
+/* slider للصوت */
+input[type=range]{
+  width:80%;
+}
+</style>
+</head>
+
+<body>
+
+<!-- PAGE 1 -->
+<div class="page active" id="p1">
+  <h2>💖 البداية</h2>
+  <p>في قصة حب بدأت من هنا...</p>
+  <button onclick="next(2)">➡️ نكمل</button>
+</div>
+
+<!-- PAGE 2 -->
+<div class="page" id="p2">
+  <h2>🎤 صوتي إلك</h2>
+
+  <button onclick="startRec()">Start 🎤</button>
+  <button onclick="stopRec()">Stop ⛔</button>
+
+  <br><br>
+  <audio id="voice" controls></audio>
+
+  <br>
+  <button onclick="next(3)">➡️ نكمل القصة</button>
+</div>
+
+<!-- PAGE 3 -->
+<div class="page" id="p3">
+  <h2>🎶 موسيقى الحب</h2>
+
+  <p>تحكم بالصوت:</p>
+  <input type="range" min="0" max="1" step="0.1" onchange="setVol(this.value)">
+
+  <br><br>
+
+  <button onclick="playAll()">▶️ تشغيل الكل</button>
+  <button onclick="next(4)">💌 الرسالة السرّية</button>
+</div>
+
+<!-- PAGE 4 -->
+<div class="page" id="p4">
+  <h2>💌 رسالة سرّية</h2>
+  <p id="secret" style="opacity:0;">أنا بحبك أكتر مما بتتخيلي 💖</p>
+</div>
+
+<!-- موسيقى -->
+<audio id="music" loop>
+  <source src="https://cdn.pixabay.com/audio/2022/10/16/audio_12b6b1b6c2.mp3">
+</audio>
+
+<script>
+
+let recorder;
+let chunks=[];
+
+/* تغيير الصفحات */
+function next(n){
+  document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
+  document.getElementById("p"+n).classList.add("active");
+
+  if(n==4){
+    setTimeout(()=>{
+      document.getElementById("secret").style.opacity=1;
+    },2000);
+  }
+}
+
+/* تسجيل الصوت */
+async function startRec(){
+  const stream = await navigator.mediaDevices.getUserMedia({audio:true});
+  recorder = new MediaRecorder(stream);
+  chunks=[];
+
+  recorder.ondataavailable=e=>chunks.push(e.data);
+
+  recorder.onstop=()=>{
+    const blob=new Blob(chunks,{type:"audio/webm"});
+    const url=URL.createObjectURL(blob);
+    document.getElementById("voice").src=url;
+  };
+
+  recorder.start();
+  alert("🎤 بلّشت التسجيل...");
+}
+
+function stopRec(){
+  if(recorder) recorder.stop();
+}
+
+/* تشغيل الكل */
+function playAll(){
+  document.getElementById("voice").play();
+  document.getElementById("music").play();
+  document.getElementById("music").volume=0.3;
+}
+
+/* صوت */
+function setVol(v){
+  document.getElementById("music").volume=v;
+}
+
+/* قلوب */
+setInterval(()=>{
+  const h=document.createElement("div");
+  h.className="heart";
+  h.innerHTML="💖";
+  h.style.left=Math.random()*100+"vw";
+  document.body.appendChild(h);
+  setTimeout(()=>h.remove(),6000);
+},200);
+
+</script>
+
+</body>
+</html>
